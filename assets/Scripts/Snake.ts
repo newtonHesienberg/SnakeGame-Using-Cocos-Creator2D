@@ -98,7 +98,7 @@ export default class Snake extends cc.Component {
     }
 
     StartTheMovement() {
-        this.schedule(this.Move , .3 , cc.macro.REPEAT_FOREVER , 0);
+        this.schedule(this.Move , .1 , cc.macro.REPEAT_FOREVER , 0);
     }
 
     StopTheMovement() {
