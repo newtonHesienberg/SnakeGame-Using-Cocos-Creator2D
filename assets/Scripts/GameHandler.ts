@@ -4,7 +4,7 @@ const {ccclass, property} = cc._decorator;
 export default class GameHandler extends cc.Component {
    
    @property(cc.Node)
-   snakeScript : cc.Node = null;
+   gameController : cc.Node = null;
    @property(cc.Node)
    gameStartPanel : cc.Node = null;
    @property(cc.Label) scoreLabel : cc.Label = null;
@@ -20,12 +20,11 @@ export default class GameHandler extends cc.Component {
    }
 
    StartGame() {
-      this.snakeScript.getComponent("Snake").StartTheMovement();
+      this.gameController.getComponent("GameController").initGameMovement();
       this.gameStartPanel.active = false;
    }
    RestartTheGame() {
-      this.snakeScript.getComponent("Snake").DisableTheGameOverPanel();
-      this.snakeScript.getComponent("Snake").StartTheMovement();
+      this.gameController.getComponent("GameController").RestartHandler();
       this.ResetScore();
    }
 

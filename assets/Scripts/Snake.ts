@@ -18,14 +18,14 @@ export default class Snake extends cc.Component {
     @property(cc.Node)
     snakeFood : cc.Node = null;
     @property(cc.Node)
-    gameHandler : cc.Node = null;
+    snakeController : cc.Node = null;
 
-    tail : Array<cc.Node> = [];
+    private tail : Array<cc.Node> = [];
 
-    isMoveRight : boolean = false;
-    isMoveLeft : boolean = false;
-    isMoveUp : boolean = false;
-    isMoveDown : boolean = false;
+    private isMoveRight : boolean = false;
+    private isMoveLeft : boolean = true;
+    private isMoveUp : boolean = false;
+    private isMoveDown : boolean = false;
 
     ate : boolean = false;
 
@@ -58,13 +58,12 @@ export default class Snake extends cc.Component {
             break;
             case cc.macro.KEY.s :                
                 if(this.isMoveUp == false) {
-                    this.isMoveUp = false;
+                this.isMoveUp = false;
                 this.isMoveRight = false;
                 this.isMoveLeft = false;
                 this.isMoveDown = true;
                 }
             break;
-
         }
     }
 
@@ -79,26 +78,42 @@ export default class Snake extends cc.Component {
 
     onCollisionEnter(otherCollider , selfCollider) {
        if(otherCollider.name == "SnakeFood<BoxCollider>") {
-        this.snakeFood.getComponent("SnakeFood").onCollisionWithSnake();
-
         this.ate = true;
-        this.gameHandler.getComponent("GameHandler").gainScore();
+        this.snakeController.getComponent("SnakeController").OnCollision();
        }
 
        if(otherCollider.name == "Borders<BoxCollider>") {
            this.Restart();
            this.gameOverPanel.active = true;
            this.StopTheMovement();
+
+            this.isMoveUp = false;
+            this.isMoveRight = false;
+            this.isMoveLeft = true;
+            this.isMoveDown = false;
        }
+
+       if(otherCollider.name == "Snake_Sprite<BoxCollider>") {
+        this.Restart();
+           this.gameOverPanel.active = true;
+           this.StopTheMovement();
+
+            this.isMoveUp = false;
+            this.isMoveRight = false;
+            this.isMoveLeft = true;
+            this.isMoveDown = false;
+    }
 
     }
 
      onLoad () {
-        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown , this);
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown , this); 
+
     }
 
     StartTheMovement() {
-        this.schedule(this.Move , .1 , cc.macro.REPEAT_FOREVER , 0);
+        this.schedule(this.Move , .25 , cc.macro.REPEAT_FOREVER , 0);
+        this.initialSnake();
     }
 
     StopTheMovement() {
@@ -108,27 +123,37 @@ export default class Snake extends cc.Component {
     DisableTheGameOverPanel() {
         this.gameOverPanel.active = false;
     }
+
+    initialSnake() {
+        for(var i = 0 ; i < 3 ;i++) {
+            var body = cc.instantiate(this.bodyParts);
+            this.node.parent.addChild(body);
+            body.setPosition(this.node.x + (25 * (i + 1)) , this.node.y);
+            this.tail.push(body);
+        }
+    }
      
     Move() {
+        // saving current position of the head
+        var v = this.node.position;
+
         if(this.isMoveRight)
          {
-            this.node.x += 20 ;
+            this.node.x += 25 ;
          }
          if(this.isMoveLeft)
          {
-            this.node.x -= 20;
+            this.node.x -= 25;
          }
          if(this.isMoveUp)
          {
-            this.node.y += 20;
+            this.node.y += 25;
          }
          if(this.isMoveDown)
          {
-            this.node.y -= 20;
-         }
-          // saving current position of the head
-          var v = this.node.position;
-
+            this.node.y -= 25;
+         }         
+          
          if(this.ate) {
             var body = cc.instantiate(this.bodyParts);
             this.node.parent.addChild(body);
@@ -136,7 +161,7 @@ export default class Snake extends cc.Component {
             this.tail.push(body);
             this.ate = false;
          }
-        else if(this.tail.length > 0) {
+        if(this.tail.length > 0) {
             this.tail[this.tail.length - 1].position = v;
             
             this.tail.unshift(this.tail[this.tail.length - 1]);

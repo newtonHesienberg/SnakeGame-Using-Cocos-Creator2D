@@ -24,9 +24,4 @@ export default class SnakeFood extends cc.Component {
         
      }
 
-    start () {
-        
-    }
-
-    // update (dt) {}
 }
