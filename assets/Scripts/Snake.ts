@@ -10,6 +10,8 @@ const {ccclass, property} = cc._decorator;
 @ccclass
 export default class Snake extends cc.Component {
 
+    @property(cc.Node)
+   gameOverPanel : cc.Node = null;
     @property(cc.Prefab)
     bodyParts : cc.Prefab = null;
      @property speed : number = 0;
@@ -72,9 +74,7 @@ export default class Snake extends cc.Component {
         }
         this.tail.length = 0;
         // set position of the head to origin
-        this.node.setPosition(0,0);
-        // reset the score
-        this.gameHandler.getComponent("GameHandler").ResetScore();
+        this.node.setPosition(0,0);       
     }
 
     onCollisionEnter(otherCollider , selfCollider) {
@@ -87,6 +87,8 @@ export default class Snake extends cc.Component {
 
        if(otherCollider.name == "Borders<BoxCollider>") {
            this.Restart();
+           this.gameOverPanel.active = true;
+           this.StopTheMovement();
        }
 
     }
@@ -95,10 +97,18 @@ export default class Snake extends cc.Component {
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown , this);
     }
 
-    start () {
+    StartTheMovement() {
         this.schedule(this.Move , .3 , cc.macro.REPEAT_FOREVER , 0);
     }
 
+    StopTheMovement() {
+        this.unschedule(this.Move);
+    }
+
+    DisableTheGameOverPanel() {
+        this.gameOverPanel.active = false;
+    }
+     
     Move() {
         if(this.isMoveRight)
          {
@@ -134,6 +144,5 @@ export default class Snake extends cc.Component {
         }         
     }
 
-     //update (dt) {} 
      
 }
